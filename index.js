@@ -134,3 +134,160 @@ function viewAllRoles() {
     endOrMenu();
   })
 }
+
+function addEmployee() {
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        message: "What is the first name?",
+        name: "firstName",
+      },
+      {
+        type: "input",
+        message: "What is the last name?",
+        name: "lastName",
+      },
+      {
+        type: "list",
+        message: "What is the employee's title?",
+        name: "title",
+        choices: showroles
+      },
+      {
+        type: "list",
+        message: "Who is the employee's manager?",
+        name: "manager",
+        choices: showemployees,
+      }
+    ]).then(function (response) {
+      // console.log(response)
+      addEmployees(response)
+    })
+}
+
+function addEmployees(data) {
+
+  connection.query("INSERT INTO employee SET ?",
+    {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      role_id: data.title,
+      manager_id: data.manager
+    }, function (error, res) {
+      if (error) throw error;
+    })
+    endOrMenu();
+}
+
+function addDept() {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the new department?",
+        name: "name"
+      }
+    ])
+    .then(function (response) {
+      // console.log(response);
+      addDepartment(response);
+    })
+}
+
+function addDepartment(data) {
+  connection.query("INSERT INTO department SET ?", { name: data.name },
+  function (error, res) {
+    // console.log(error, res);
+    if (error) throw error;
+  });
+  endOrMenu();
+}
+
+function addRole() {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the new employee role?",
+        name: "title"
+      },
+      {
+        type: "input",
+        message: "How much is the salary of the new role?",
+        name: "salary"
+      },
+      {
+        type: "list",
+        message: "In which department is the new role?",
+        name: "id",
+        choices: showdepartments
+      }
+    ])
+    .then(function (response) {
+      // console.log(response);
+      addEmployeeRole(response);
+    })
+}
+
+function addEmployeeRole(data) {
+  connection.query("INSERT INTO role SET ?", {
+    title: data.title,
+    salary: data.salary,
+    department_id: data.id
+  }, function (error, res) {
+    // console.log(error, res);
+    if (error) throw error;
+  });
+  endOrMenu();
+}
+
+function updateRole() {
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "For which employee would you like to update the role?",
+        name: "empID",
+        choices: showemployees
+      },
+      {
+        type: "list",
+        message: "What is the employee's new role?",
+        name: "titleID",
+        choices: showroles
+      }
+    ])
+    .then(function (response) {
+      // console.log(response);
+      updateEmployeeRole(response);
+    })
+}
+
+function updateEmployeeRole(data) {
+  connection.query(`UPDATE employee SET role_id = ${data.titleID} WHERE id = ${data.empID}`,
+  function (error, res) {
+    // console.log(error, res);
+    if (error) throw error;
+  });
+  endOrMenu();
+}
+
+function endOrMenu() {
+  confirm("Would you like to continue?")
+  .then(function confirmed() {
+    showmenu();
+  }, function cancelled() {
+    end();
+  });
+}
+
+function end() {
+  console.log("Thank you for using Employee Tracker!");
+  connection.end();
+  process.exit();
+}
+
+
+
+
